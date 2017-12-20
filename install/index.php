@@ -49,7 +49,11 @@ class partnercode_solutioncode extends CModule {
 		$this->MODULE_SORT = 1;
 	}
 	
-	// Определяем место размещения модуля
+	/**
+	 * @param bool $notDocumentRoot
+	 *
+	 * @return mixed|string
+	 */
 	public function GetPath($notDocumentRoot = false) {
 		if($notDocumentRoot) {
 			return str_ireplace(Application::getDocumentRoot(), '', dirname(__DIR__));
@@ -58,39 +62,48 @@ class partnercode_solutioncode extends CModule {
 		}
 	}
 	
-	// Проверяем что система поддерживает D7
+	/**
+	 * @return bool
+	 */
 	public function isVersionD7() {
 		return CheckVersion(ModuleManager::getVersion('main'), '14.00.00');
 	}
 	
+	/**
+	 * @return bool
+	 */
 	function InstallDB() {
 		ModuleManager::registerModule($this->MODULE_ID);
 		
 		return true;
 	}
 	
+	/**
+	 * @return bool|void
+	 */
 	function UnInstallDB() {
 		ModuleManager::unRegisterModule($this->MODULE_ID);
 		
 		return true;
 	}
 	
+	/**
+	 * @return bool|void
+	 */
 	function InstallEvents() {
-		$eventManager = EventManager::getInstance();
-		$eventManager->registerEventHandlerCompatible('main', 'OnBeforeProlog', $this->MODULE_ID, self::moduleClassEvents, 'OnBeforePrologHandler');
-		
-		spl_autoload_register();
-		
 		return true;
 	}
 	
+	/**
+	 * @return bool|void
+	 */
 	function UnInstallEvents() {
-		$eventManager = EventManager::getInstance();
-		$eventManager->unRegisterEventHandler('main', 'OnBeforeProlog', $this->MODULE_ID, self::moduleClassEvents, 'OnBeforePrologHandler');
-		
 		return true;
 	}
 	
+	/**
+	 * @return bool|void
+	 */
 	function InstallFiles() {
 		if (IoDirectory::isDirectoryExists($path = $this->GetPath() . '/admin')) {
 			if ($dir = opendir($path)) {
@@ -98,7 +111,7 @@ class partnercode_solutioncode extends CModule {
 					if (in_array($item,$this->exclusionAdminFiles))
 						continue;
 					
-					$sIncludeAdminPage = '<' . '? require($_SERVER["DOCUMENT_ROOT"]."' . $this->GetPath(true) . '/admin/' . $item . '");?' . '>';
+					$sIncludeAdminPage = '<' . '? require($_SERVER["DOCUMENT_ROOT"]."' . $this->GetPath(true) . '/admin/' . $item . '"); ?' . '>';
 					file_put_contents(Application::getDocumentRoot() . '/bitrix/admin/' . $this->MODULE_ID . '_' . $item, $sIncludeAdminPage);
 				}
 				
@@ -134,6 +147,9 @@ class partnercode_solutioncode extends CModule {
 		return true;
 	}
 	
+	/**
+	 * @return bool|void
+	 */
 	function UnInstallFiles() {
 		if (IoDirectory::isDirectoryExists($path = $this->GetPath() . '/admin')) {
 			if ($dir = opendir($path)) {
@@ -157,14 +173,23 @@ class partnercode_solutioncode extends CModule {
 		return true;
 	}
 	
+	/**
+	 * @return bool
+	 */
 	function InstallGadget() {
 		return true;
 	}
 	
+	/**
+	 * @return bool
+	 */
 	function UnInstallGadget() {
 		return true;
 	}
 	
+	/**
+	 * @return mixed|void
+	 */
 	function DoInstall() {
 		global $APPLICATION;
 		
@@ -179,6 +204,9 @@ class partnercode_solutioncode extends CModule {
 		$APPLICATION->IncludeAdminFile(Loc::getMessage($this->MODULE_LANG_CODE . '_INSTALL_TITLE', array('#MODULE_NAME_SHORT#' => Loc::getMessage($this->MODULE_LANG_CODE . '_MODULE_NAME_SHORT'))), $this->GetPath() . '/install/step.php');
 	}
 	
+	/**
+	 * @return mixed|void
+	 */
 	function DoUninstall() {
 		global $APPLICATION;
 		
@@ -189,6 +217,9 @@ class partnercode_solutioncode extends CModule {
 		$APPLICATION->IncludeAdminFile(Loc::getMessage($this->MODULE_LANG_CODE . '_UNINSTALL_TITLE', array('#MODULE_NAME_SHORT#' => Loc::getMessage($this->MODULE_LANG_CODE . '_MODULE_NAME_SHORT'))), $this->GetPath() . '/install/unstep.php');
 	}
 	
+	/**
+	 * @return array
+	 */
 	function GetModuleRightList() {
 		return array(
 			'reference_id' => array('D', 'K', 'S', 'W'),
